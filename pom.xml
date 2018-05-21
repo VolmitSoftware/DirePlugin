@@ -60,7 +60,7 @@
 				</executions>
 				<configuration>
 					<executable>${project.basedir}/scripts/dev.bat</executable>
-					<arguments>${project.basedir}\target\Combattant-${project.version}.jar</arguments>
+					<arguments>${project.basedir}\target\DirePlugin-${project.version}.jar</arguments>
 				</configuration>
 			</plugin>
 		</plugins>

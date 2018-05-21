@@ -1,8 +1,11 @@
 package com.volmit.combattant.control;
 
+import java.time.Duration;
+
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.event.EventHandler;
@@ -10,14 +13,17 @@ import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 
 import com.volmit.combattant.ai.AIGoal;
-import com.volmit.combattant.ai.AgressiveGoal;
+import com.volmit.combattant.ai.AgressiveMeleeGoal;
+import com.volmit.combattant.ai.BlazeGoal;
 import com.volmit.combattant.ai.PassiveGoal;
-import com.volmit.combattant.ai.SniperGoal;
 import com.volmit.combattant.services.SoundSVC;
 import com.volmit.volume.bukkit.U;
 import com.volmit.volume.bukkit.pawn.IPawn;
 import com.volmit.volume.bukkit.pawn.Start;
 import com.volmit.volume.bukkit.pawn.Tick;
+import com.volmit.volume.bukkit.util.physics.VectorMath;
+import com.volmit.volume.bukkit.util.world.RayTrace;
+import com.volmit.volume.lang.collections.FinalInteger;
 import com.volmit.volume.lang.collections.GList;
 import com.volmit.volume.lang.collections.GMap;
 import com.volmit.volume.math.M;
@@ -33,8 +39,8 @@ public class AIController implements IPawn
 		queue = new GList<LivingEntity>();
 		goalMap = new GMap<EntityType, AIGoal>();
 		PassiveGoal pg = new PassiveGoal();
-		AgressiveGoal ag = new AgressiveGoal();
-		SniperGoal sg = new SniperGoal();
+		AgressiveMeleeGoal ag = new AgressiveMeleeGoal();
+
 		goalMap.put(EntityType.COW, pg);
 		goalMap.put(EntityType.PIG, pg);
 		goalMap.put(EntityType.SHEEP, pg);
@@ -56,12 +62,13 @@ public class AIController implements IPawn
 		goalMap.put(EntityType.VEX, ag);
 		goalMap.put(EntityType.SQUID, ag);
 
-		goalMap.put(EntityType.SKELETON, sg);
-		goalMap.put(EntityType.STRAY, sg);
-		goalMap.put(EntityType.BLAZE, sg);
-		goalMap.put(EntityType.GHAST, sg);
-		goalMap.put(EntityType.WITCH, sg);
-		goalMap.put(EntityType.SHULKER, sg);
+		goalMap.put(EntityType.BLAZE, new BlazeGoal());
+
+		// goalMap.put(EntityType.SKELETON, sg);
+		// goalMap.put(EntityType.STRAY, sg);
+		// goalMap.put(EntityType.GHAST, sg);
+		// goalMap.put(EntityType.WITCH, sg);
+		// goalMap.put(EntityType.SHULKER, sg);
 	}
 
 	@EventHandler
@@ -94,7 +101,7 @@ public class AIController implements IPawn
 		}
 
 		long ns = M.ns();
-		long time = 1000000;
+		long time = Duration.ofMillis(2).toNanos();
 
 		while(!queue.isEmpty() && M.ns() - ns < time)
 		{
@@ -119,8 +126,31 @@ public class AIController implements IPawn
 			Location nearest = null;
 			double n = Double.MAX_VALUE;
 			double f = Double.MIN_VALUE;
+			g.onPityTick(pop);
+			GList<Location> sounds = U.getService(SoundSVC.class).listenFor(pop.getLocation(), g.getListeningPower(pop));
+			GList<LivingEntity> entitiesLOS = new GList<LivingEntity>();
+			GList<LivingEntity> entities = new GList<LivingEntity>();
+			double radius = 18.5 * g.getListeningPower(pop);
 
-			for(Location j : U.getService(SoundSVC.class).listenFor(pop.getLocation(), g.getListeningPower(pop)))
+			for(Entity i : pop.getLocation().getWorld().getNearbyEntities(pop.getLocation(), radius, radius, radius))
+			{
+				if(i instanceof LivingEntity)
+				{
+					if(!(g instanceof PassiveGoal) && i.getType().equals(pop.getType()))
+					{
+						continue;
+					}
+
+					entities.add((LivingEntity) i);
+
+					if(hasLineOfSight(pop, ((LivingEntity) i).getEyeLocation()))
+					{
+						entitiesLOS.add((LivingEntity) i);
+					}
+				}
+			}
+
+			for(Location j : sounds)
 			{
 				double d = j.distanceSquared(pop.getLocation());
 
@@ -137,25 +167,27 @@ public class AIController implements IPawn
 				}
 			}
 
-			if(g instanceof PassiveGoal && nearest != null)
+			if(nearest != null && furthest != null)
 			{
-				g.onSoundDiscovered(nearest, pop);
-			}
-
-			if(g instanceof AgressiveGoal && furthest != null)
-			{
-				g.onSoundDiscovered(furthest, pop);
-			}
-
-			if(g instanceof SniperGoal && furthest != null)
-			{
-				g.onSoundDiscovered(furthest, pop);
-			}
-
-			if(g instanceof SniperGoal && nearest != null)
-			{
-				g.onSoundDiscovered(nearest, pop);
+				g.onSoundDiscovered(nearest, furthest, sounds, pop, entities, entitiesLOS);
 			}
 		}
+	}
+
+	private boolean hasLineOfSight(LivingEntity seeker, Location position)
+	{
+		FinalInteger fe = new FinalInteger(0);
+
+		new RayTrace(seeker.getEyeLocation(), VectorMath.direction(seeker.getEyeLocation(), position), 128D, 1D)
+		{
+			@Override
+			public void onTrace(Location location)
+			{
+				fe.set(1);
+				stop();
+			}
+		}.trace();
+
+		return fe.get() == 1;
 	}
 }
