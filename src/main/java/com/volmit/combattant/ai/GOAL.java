@@ -6,6 +6,7 @@ import org.bukkit.entity.Creature;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.util.Vector;
 
+import com.volmit.combattant.Gate;
 import com.volmit.combattant.services.SoundSVC;
 import com.volmit.volume.bukkit.U;
 import com.volmit.volume.bukkit.nms.NMSSVC;
@@ -25,19 +26,34 @@ public abstract class GOAL implements AIGoal
 		}
 	}
 
+	public void hover(LivingEntity c, double distance, double speed)
+	{
+		if(heightOffGround(c) < distance)
+		{
+			ascend(c, speed);
+		}
+	}
+
 	public LivingEntity closest(LivingEntity le, GList<LivingEntity> les)
 	{
 		double min = Double.MAX_VALUE;
 		LivingEntity ee = null;
 
+		int cc = 0;
 		for(LivingEntity i : les)
 		{
+			cc++;
 			double dd = i.getLocation().distance(le.getLocation());
 
 			if(dd < min)
 			{
 				ee = i;
 				min = dd;
+			}
+
+			if(cc > Gate.PERFORMANCE_CLOSEST_MAX_ITERATIONS)
+			{
+				break;
 			}
 		}
 
@@ -103,6 +119,11 @@ public abstract class GOAL implements AIGoal
 	public void speak(LivingEntity c, Sound sound, float pitch)
 	{
 		new GSound(sound, 1.7f, pitch).play(c.getLocation());
+	}
+
+	public void speakLoudly(LivingEntity c, Sound sound, float pitch)
+	{
+		new GSound(sound, 3.7f, pitch).play(c.getLocation());
 	}
 
 	public void speak(LivingEntity c, Sound sound, float pitch, float osc)
@@ -171,6 +192,17 @@ public abstract class GOAL implements AIGoal
 		c.setVelocity(c.getVelocity().add(direction));
 	}
 
+	public Vector strafe(LivingEntity c, Location from)
+	{
+		Vector rnd = Vector.getRandom().subtract(Vector.getRandom()).normalize();
+		Vector dir = VectorMath.direction(c.getEyeLocation(), from);
+		rnd.add(dir).normalize();
+		rnd.subtract(dir).normalize();
+		rnd.setY(0).normalize();
+
+		return rnd;
+	}
+
 	public void pathfind(Location to, LivingEntity c, double speed)
 	{
 		U.getService(NMSSVC.class).pathFind(c, to, speed > 1, speed);
@@ -181,7 +213,9 @@ public abstract class GOAL implements AIGoal
 		Vector direction = VectorMath.direction(c.getLocation(), sound);
 		direction = direction.clone().add(Vector.getRandom().subtract(Vector.getRandom()).clone().multiply(0.27)).clone().multiply(4);
 		Location dest = c.getLocation().clone().add(direction).clone().add(Math.random(), Math.random(), Math.random());
+		dest.setY(dest.getWorld().getHighestBlockYAt(dest));
 		U.getService(NMSSVC.class).pathFind(c, dest, speed > 1, speed);
+		U.getService(SoundSVC.class).makeSound(c.getLocation(), 100d);
 	}
 
 	public void flee(Location sound, LivingEntity c, double speed)
@@ -189,7 +223,7 @@ public abstract class GOAL implements AIGoal
 		Vector direction = VectorMath.direction(sound, c.getLocation());
 		direction = direction.clone().add(Vector.getRandom().subtract(Vector.getRandom()).clone().multiply(0.17)).clone().multiply((4 * Math.random()) + 8);
 		Location dest = c.getLocation().clone().add(direction);
+		dest.setY(dest.getWorld().getHighestBlockYAt(dest));
 		U.getService(NMSSVC.class).pathFind(c, dest, true, 1.9);
-		U.getService(SoundSVC.class).makeSound(c.getLocation(), 100d);
 	}
 }

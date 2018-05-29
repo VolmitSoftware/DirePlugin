@@ -18,6 +18,7 @@ import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.event.world.PortalCreateEvent;
 
+import com.volmit.combattant.Gate;
 import com.volmit.volume.bukkit.U;
 import com.volmit.volume.bukkit.nms.IPacketHandler;
 import com.volmit.volume.bukkit.nms.NMSSVC;
@@ -75,7 +76,10 @@ public class SoundSVC implements IService
 		}
 
 		sounds.put(l, volume);
-		ParticleEffect.CLOUD.display(0.1f, 1, l, 50);
+		if(Gate.SOUNDFIELD_SHOW_SOUNDS)
+		{
+			ParticleEffect.CLOUD.display(0.1f, 1, l, 50);
+		}
 	}
 
 	@EventHandler
@@ -209,9 +213,9 @@ public class SoundSVC implements IService
 				continue;
 			}
 
-			sounds.put(i, sounds.get(i) - 1.25);
+			sounds.put(i, sounds.get(i) - Gate.SOUNDFIELD_TEMPORAL_DECAY);
 
-			if(sounds.get(i) < 0.25)
+			if(sounds.get(i) < Gate.SOUNDFIELD_TEMPORAL_LIMIT)
 			{
 				sounds.remove(i);
 			}

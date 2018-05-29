@@ -17,7 +17,6 @@ public class CommandCombattant extends PawnCommand
 	@Override
 	public boolean handle(VolumeSender sender, String[] args)
 	{
-		sender.sendMessage("Try /combat reload");
 		return true;
 	}
 }

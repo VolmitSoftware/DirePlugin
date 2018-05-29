@@ -12,18 +12,19 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 
+import com.volmit.combattant.Gate;
 import com.volmit.combattant.ai.AIGoal;
 import com.volmit.combattant.ai.AgressiveMeleeGoal;
 import com.volmit.combattant.ai.BlazeGoal;
+import com.volmit.combattant.ai.CreeperGoal;
+import com.volmit.combattant.ai.GhastGoal;
 import com.volmit.combattant.ai.PassiveGoal;
+import com.volmit.combattant.ai.SkeletonGoal;
 import com.volmit.combattant.services.SoundSVC;
 import com.volmit.volume.bukkit.U;
 import com.volmit.volume.bukkit.pawn.IPawn;
 import com.volmit.volume.bukkit.pawn.Start;
 import com.volmit.volume.bukkit.pawn.Tick;
-import com.volmit.volume.bukkit.util.physics.VectorMath;
-import com.volmit.volume.bukkit.util.world.RayTrace;
-import com.volmit.volume.lang.collections.FinalInteger;
 import com.volmit.volume.lang.collections.GList;
 import com.volmit.volume.lang.collections.GMap;
 import com.volmit.volume.math.M;
@@ -63,10 +64,10 @@ public class AIController implements IPawn
 		goalMap.put(EntityType.SQUID, ag);
 
 		goalMap.put(EntityType.BLAZE, new BlazeGoal());
-
-		// goalMap.put(EntityType.SKELETON, sg);
-		// goalMap.put(EntityType.STRAY, sg);
-		// goalMap.put(EntityType.GHAST, sg);
+		goalMap.put(EntityType.CREEPER, new CreeperGoal());
+		goalMap.put(EntityType.SKELETON, new SkeletonGoal());
+		goalMap.put(EntityType.STRAY, new SkeletonGoal());
+		goalMap.put(EntityType.GHAST, new GhastGoal());
 		// goalMap.put(EntityType.WITCH, sg);
 		// goalMap.put(EntityType.SHULKER, sg);
 	}
@@ -101,7 +102,7 @@ public class AIController implements IPawn
 		}
 
 		long ns = M.ns();
-		long time = Duration.ofMillis(2).toNanos();
+		long time = Duration.ofMillis(Gate.MAXIMUM_MILLISECONDS).toNanos();
 
 		while(!queue.isEmpty() && M.ns() - ns < time)
 		{
@@ -130,7 +131,7 @@ public class AIController implements IPawn
 			GList<Location> sounds = U.getService(SoundSVC.class).listenFor(pop.getLocation(), g.getListeningPower(pop));
 			GList<LivingEntity> entitiesLOS = new GList<LivingEntity>();
 			GList<LivingEntity> entities = new GList<LivingEntity>();
-			double radius = 18.5 * g.getListeningPower(pop);
+			double radius = Gate.SOUNDFIELD_BASE_RADIUS * g.getListeningPower(pop);
 
 			for(Entity i : pop.getLocation().getWorld().getNearbyEntities(pop.getLocation(), radius, radius, radius))
 			{
@@ -167,27 +168,12 @@ public class AIController implements IPawn
 				}
 			}
 
-			if(nearest != null && furthest != null)
-			{
-				g.onSoundDiscovered(nearest, furthest, sounds, pop, entities, entitiesLOS);
-			}
+			g.onSoundDiscovered(nearest, furthest, sounds, pop, entities, entitiesLOS);
 		}
 	}
 
 	private boolean hasLineOfSight(LivingEntity seeker, Location position)
 	{
-		FinalInteger fe = new FinalInteger(0);
-
-		new RayTrace(seeker.getEyeLocation(), VectorMath.direction(seeker.getEyeLocation(), position), 128D, 1D)
-		{
-			@Override
-			public void onTrace(Location location)
-			{
-				fe.set(1);
-				stop();
-			}
-		}.trace();
-
-		return fe.get() == 1;
+		return true;
 	}
 }

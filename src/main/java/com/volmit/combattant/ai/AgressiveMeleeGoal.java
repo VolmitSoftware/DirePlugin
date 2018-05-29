@@ -3,6 +3,7 @@ package com.volmit.combattant.ai;
 import org.bukkit.Location;
 import org.bukkit.entity.LivingEntity;
 
+import com.volmit.combattant.Gate;
 import com.volmit.volume.lang.collections.GList;
 
 public class AgressiveMeleeGoal extends GOAL
@@ -10,13 +11,16 @@ public class AgressiveMeleeGoal extends GOAL
 	@Override
 	public void onHurt(Location from, LivingEntity src, LivingEntity c, double damage)
 	{
-		flee(from, c, 0.85);
+		flee(from, c, Gate.AI_GOAL_AGGRO_FLEE_ON_DAMAGE_SPEED);
 	}
 
 	@Override
 	public void onSoundDiscovered(Location near, Location far, GList<Location> sounds, LivingEntity c, GList<LivingEntity> nearbyEntities, GList<LivingEntity> nearbyEntitiesLOS)
 	{
-		lunge(near, c, 0.85);
+		if(near != null)
+		{
+			lunge(near, c, Gate.AI_GOAL_AGGRO_LUNGE_SPEED);
+		}
 
 		if(!nearbyEntitiesLOS.isEmpty())
 		{
@@ -27,7 +31,7 @@ public class AgressiveMeleeGoal extends GOAL
 
 	public void attack(LivingEntity c, LivingEntity e)
 	{
-		pathfind(e.getEyeLocation(), c, 1.25);
+		pathfind(e.getEyeLocation(), c, Gate.AI_GOAL_AGGRO_ATTACK_SPEED);
 		target(c, e);
 	}
 
@@ -35,7 +39,7 @@ public class AgressiveMeleeGoal extends GOAL
 	@Override
 	public double getListeningPower(LivingEntity c)
 	{
-		return 1.2 + (c.getHealth() > c.getMaxHealth() ? 0.4 : 0);
+		return Gate.AI_GOAL_AGGRO_LISTENING_POWER + (c.getHealth() > c.getMaxHealth() ? 0.4 : 0);
 	}
 
 	@Override

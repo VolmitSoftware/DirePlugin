@@ -118,9 +118,12 @@ public class TracerFireball
 
 				if(M.r(0.7))
 				{
-					ParticleEffect.FLAME.display(0.1f, 2, fe.getLocation(), 32);
 					new GSound(Sound.BLOCK_FIRE_EXTINGUISH, 0.15f, (float) (Math.random() * 2)).play(fe.getLocation());
 				}
+
+				ParticleEffect.FLAME.display(fe.getVelocity(), 0.15f, fe.getLocation(), 100);
+				ParticleEffect.FLAME.display(fe.getVelocity(), 0.4f, fe.getLocation(), 100);
+				ParticleEffect.FLAME.display(fe.getVelocity(), 0.65f, fe.getLocation(), 100);
 
 				fe.setVelocity(fe.getVelocity().clone().add(VectorMath.reverse(VectorMath.direction(l, fe.getLocation())).clone().multiply(gforce)).clone().normalize().multiply(speed));
 			}

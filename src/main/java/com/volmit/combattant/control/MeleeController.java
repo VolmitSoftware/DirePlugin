@@ -20,6 +20,7 @@ import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.Vector;
 
+import com.volmit.combattant.Gate;
 import com.volmit.combattant.object.ValueControl;
 import com.volmit.combattant.services.StaminaSVC;
 import com.volmit.volume.bukkit.U;
@@ -58,10 +59,10 @@ public class MeleeController implements IPawn
 				{
 					if(e.getPlayer().isSprinting())
 					{
-						if(s.current > 300)
+						if(s.current > Gate.SWORD_STAB_MIN_STAMINA)
 						{
 							e.getPlayer().setCooldown(is.getType(), 8);
-							s.rate(100, 3);
+							s.rate(-Gate.SWORD_STAB_ATTEMPT_CONSUME_STAMINA, Gate.SWORD_STAB_ATTEMPT_CONSUME_STAMINA_TICKS);
 							ParticleEffect.CRIT.display(0.3f, 12, e.getPlayer().getEyeLocation().clone().add(e.getPlayer().getLocation().getDirection().clone().multiply(3.65)).add(0, -0.5, 0), 32);
 							ParticleEffect.CRIT.display(e.getPlayer().getLocation().getDirection(), 0.3f, e.getPlayer().getEyeLocation().clone().add(e.getPlayer().getLocation().getDirection().clone().multiply(1.65)).add(0, -0.5, 0), 32);
 							ParticleEffect.CRIT.display(e.getPlayer().getLocation().getDirection(), 0.3f, e.getPlayer().getEyeLocation().clone().add(e.getPlayer().getLocation().getDirection().clone().multiply(1.55)).add(0, -0.3, 0), 32);
@@ -83,45 +84,45 @@ public class MeleeController implements IPawn
 									switch(is.getType())
 									{
 										case DIAMOND_SWORD:
-											d += 4;
+											d += Gate.SWORD_STAB_DAMAGE_DIAMOND;
 											break;
 										case IRON_SWORD:
-											d += 3;
+											d += Gate.SWORD_STAB_DAMAGE_IRON;
 											break;
 										case GOLD_SWORD:
-											d += 3;
+											d += Gate.SWORD_STAB_DAMAGE_GOLD;
 											break;
 										case WOOD_SWORD:
-											d += 2;
+											d += Gate.SWORD_STAB_DAMAGE_WOOD;
 											break;
 										case STONE_SWORD:
-											d += 3;
+											d += Gate.SWORD_STAB_DAMAGE_STONE;
 											break;
 										default:
 											break;
 									}
 
 									((LivingEntity) i).damage(d, e.getPlayer());
-									e.getPlayer().setCooldown(is.getType(), 147);
-									s.rate(-300, 4);
-									dmg += 160;
+									e.getPlayer().setCooldown(is.getType(), Gate.SWORD_STAB_SUCCESS_COOLDOWN);
+									s.rate(-Gate.SWORD_STAB_SUCCESS_CONSUME_STAMINA, Gate.SWORD_STAB_SUCCESS_CONSUME_STAMINA_TICKS);
+									dmg += Gate.SWORD_STAB_SUCCESS_DURABILITY;
 									ParticleEffect.DAMAGE_INDICATOR.display(1.5f, 55, i.getLocation(), 32);
 									new GSound(Sound.ENTITY_ZOMBIE_ATTACK_IRON_DOOR, 1f, 0.55f).play(i.getLocation());
 									new GSound(Sound.ENTITY_ZOMBIE_ATTACK_IRON_DOOR, 1f, 0.85f).play(i.getLocation());
 									new GSound(Sound.ENTITY_ZOMBIE_ATTACK_IRON_DOOR, 1f, 1.25f).play(i.getLocation());
 								}
 							}
-							e.getPlayer().setCooldown(is.getType(), 47);
 
+							e.getPlayer().setCooldown(is.getType(), Gate.SWORD_STAB_ATTEMPT_COOLDOWN);
 							new GSound(Sound.ENTITY_ZOMBIE_ATTACK_IRON_DOOR, 0.4f, 1.655f).play(e.getPlayer().getLocation());
 						}
 					}
 
 					else
 					{
-						if(s.current > 300 && !e.getPlayer().hasCooldown(is.getType()))
+						if(s.current > Gate.SWORD_SWEEP_MIN_STAMINA && !e.getPlayer().hasCooldown(is.getType()))
 						{
-							e.getPlayer().setCooldown(is.getType(), 7);
+							e.getPlayer().setCooldown(is.getType(), Gate.SWORD_SWEEP_BASE_COOLDOWN);
 							ParticleEffect.SWEEP_ATTACK.display(0.1f, 1, e.getPlayer().getEyeLocation().clone().add(e.getPlayer().getLocation().getDirection().clone().multiply(1.25)).add(0, -0.5, 0), 32);
 							new GSound(Sound.ENTITY_PLAYER_ATTACK_SWEEP, 1f, (float) (Math.random() / 2) + 0.65f).play(e.getPlayer().getEyeLocation());
 							Location ctr = e.getPlayer().getEyeLocation().clone().add(e.getPlayer().getLocation().getDirection().clone().multiply(2.25)).add(0, -0.5, 0);
@@ -169,8 +170,8 @@ public class MeleeController implements IPawn
 
 					if(dmg > 0)
 					{
-						dmg = dmg / 2;
-						e.getPlayer().setCooldown(is.getType(), dmg + 5);
+						dmg = (int) (dmg * Gate.SWORD_SWEEP_DURABILITY_MULTIPLIER);
+						e.getPlayer().setCooldown(is.getType(), (int) ((dmg + 5) * Gate.SWORD_SWEEP_COOLDOWN_MULTIPLIER));
 
 						if(is.getDurability() + dmg + 1 > is.getType().getMaxDurability())
 						{

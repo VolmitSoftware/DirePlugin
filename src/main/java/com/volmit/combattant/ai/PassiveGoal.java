@@ -4,12 +4,10 @@ import org.bukkit.Location;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.util.Vector;
 
-import com.volmit.combattant.services.SoundSVC;
 import com.volmit.combattant.services.WindSVC;
 import com.volmit.volume.bukkit.U;
 import com.volmit.volume.bukkit.util.physics.VectorMath;
 import com.volmit.volume.lang.collections.GList;
-import com.volmit.volume.math.M;
 
 public class PassiveGoal extends GOAL
 {
@@ -22,11 +20,19 @@ public class PassiveGoal extends GOAL
 	@Override
 	public void onSoundDiscovered(Location near, Location far, GList<Location> sounds, LivingEntity c, GList<LivingEntity> nearbyEntities, GList<LivingEntity> nearbyEntitiesLOS)
 	{
-		if(!nearbyEntities.isEmpty() && !groupUpWithAllies(c, nearbyEntities, far))
+		if(near != null)
 		{
-			if(far.distanceSquared(c.getLocation()) > 10)
+			if(true)
 			{
-				flee(far, c, 1.5);
+				flee(near, c, 1.4);
+			}
+		}
+
+		else if(!nearbyEntities.isEmpty())
+		{
+			if(true)
+			{
+				groupUpWithAllies(c, nearbyEntities, far);
 			}
 		}
 	}
@@ -34,22 +40,39 @@ public class PassiveGoal extends GOAL
 	public boolean groupUpWithAllies(LivingEntity c, GList<LivingEntity> e, Location flee)
 	{
 		Location a = c.getLocation();
-		a.clone().add(U.getService(WindSVC.class).getWindDirection().normalize().multiply(5));
+		a.clone().add(U.getService(WindSVC.class).getWindDirection().normalize().multiply(9));
+		int cc = 0;
 		for(LivingEntity i : e)
 		{
+			cc++;
+
 			if(i.getType().equals(c.getType()) && !i.equals(c))
 			{
 				target(c, i);
-				a.add(VectorMath.direction(a, i.getLocation()).multiply(a.distance(i.getLocation())));
+				a.add(VectorMath.direction(a, i.getLocation()).multiply(a.distance(i.getLocation()) * 1.25));
+			}
+
+			if(cc > 100)
+			{
+				break;
 			}
 		}
 
-		if(a.distanceSquared(c.getLocation()) < 150)
+		Vector vx = new Vector();
+
+		if(flee != null)
+		{
+			VectorMath.direction(flee, c.getLocation()).multiply(18);
+		}
+
+		vx.clone().add(Vector.getRandom().subtract(Vector.getRandom()).normalize().multiply(5));
+
+		if(a.distanceSquared(c.getLocation()) < 100)
 		{
 			return false;
 		}
 
-		pathfind(a.clone().add(Vector.getRandom().subtract(Vector.getRandom()).normalize().multiply(5)), c, 1.7);
+		pathfind(a.clone().add(Vector.getRandom().subtract(Vector.getRandom()).normalize().multiply(1)).clone().add(vx), c, 1.4);
 
 		return true;
 	}
@@ -64,9 +87,6 @@ public class PassiveGoal extends GOAL
 	@Override
 	public void onPityTick(LivingEntity c)
 	{
-		if(M.r(0.01))
-		{
-			U.getService(SoundSVC.class).makeSound(c.getLocation(), (double) 20);
-		}
+
 	}
 }

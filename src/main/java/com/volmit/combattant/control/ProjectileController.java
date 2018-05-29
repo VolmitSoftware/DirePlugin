@@ -9,6 +9,7 @@ import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.util.Vector;
 
+import com.volmit.combattant.Gate;
 import com.volmit.combattant.services.SoundSVC;
 import com.volmit.volume.bukkit.U;
 import com.volmit.volume.bukkit.pawn.IPawn;
@@ -33,8 +34,8 @@ public class ProjectileController implements IPawn
 			if(e.getEntity() instanceof LivingEntity)
 			{
 				LivingEntity c = (LivingEntity) e.getEntity();
-				double size = 1;
-				double accuracy = 24;
+				double size = Gate.BOW_HEADSHOT_AABB_SIZE;
+				double accuracy = Gate.BOW_HEADSHOT_CHECK_ITERATIONS;
 				Vector vv = e.getDamager().getVelocity();
 
 				for(int i = 1; i < accuracy; i++)
@@ -45,7 +46,7 @@ public class ProjectileController implements IPawn
 						c.getEyeLocation().getWorld().playSound(c.getEyeLocation(), Sound.ENTITY_PLAYER_ATTACK_CRIT, 1.7f, 1.2f);
 						c.getEyeLocation().getWorld().playSound(c.getEyeLocation(), Sound.ENTITY_PLAYER_ATTACK_KNOCKBACK, 1.7f, 1.2f);
 						c.getEyeLocation().getWorld().playSound(c.getEyeLocation(), Sound.ENTITY_PLAYER_ATTACK_STRONG, 1.7f, 1.2f);
-						c.damage(e.getDamage());
+						c.damage((Gate.BOW_HEADSHOT_DAMAGE_MULTIPLIER - 1) * e.getDamage());
 						ParticleEffect.CRIT.display(0.6f, 24, c.getEyeLocation(), 100);
 						U.getService(SoundSVC.class).makeSound(c.getLocation(), 100d);
 						break;
