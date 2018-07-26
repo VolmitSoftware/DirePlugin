@@ -3,8 +3,8 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.volmit</groupId>
 	<artifactId>DirePlugin</artifactId>
-	<version>B0287</version>
-	<name>DirePluigin</name>
+	<version>B0347</version>
+	<name>DirePlugin</name>
 	<description>Survival Overhaul. Smarter AI, New Combat System Stamina!</description>
 	<properties>
 		<maven.compiler.source>1.8</maven.compiler.source>

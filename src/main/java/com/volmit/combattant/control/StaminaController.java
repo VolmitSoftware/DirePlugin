@@ -16,6 +16,7 @@ import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
 import org.bukkit.event.entity.FoodLevelChangeEvent;
 import org.bukkit.event.entity.ProjectileLaunchEvent;
+import org.bukkit.event.player.PlayerItemConsumeEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionEffect;
@@ -29,6 +30,7 @@ import com.volmit.volume.bukkit.U;
 import com.volmit.volume.bukkit.pawn.IPawn;
 import com.volmit.volume.bukkit.pawn.Tick;
 import com.volmit.volume.bukkit.task.TICK;
+import com.volmit.volume.math.M;
 
 public class StaminaController implements IPawn
 {
@@ -41,7 +43,63 @@ public class StaminaController implements IPawn
 			{
 				ValueControl s = U.getService(StaminaSVC.class).get(i);
 
-				if(s.rates.size() == 0)
+				if(i.hasPotionEffect(PotionEffectType.ABSORPTION) && s.getMax() < MAX_STAMINA_ABSORBTION)
+				{
+					s.setMax(s.getMax() + 250);
+				}
+
+				if(i.hasPotionEffect(PotionEffectType.POISON) || i.hasPotionEffect(PotionEffectType.WITHER))
+				{
+					if(M.r(0.25))
+					{
+						s.setMax(s.getMax() - 550);
+					}
+				}
+
+				if(s.getMax() < MIN_STAMINA)
+				{
+					s.setMax(MIN_STAMINA);
+				}
+
+				if(s.getMax() > MAX_STAMINA)
+				{
+					s.setMax(s.getMax() - 100);
+				}
+
+				if(s.getMax() < MAX_STAMINA)
+				{
+					s.setMax(s.getMax() + 100);
+				}
+
+				if(Math.abs(s.getMax() - MAX_STAMINA) < 120)
+				{
+					s.setMax(MAX_STAMINA);
+				}
+
+				// i.sendMessage(F.repeat("\n ", 20));
+				//
+				// for(double j : s.getRates().k())
+				// {
+				// if(s.getRates().get(j) < 0)
+				// {
+				// i.sendMessage((j > 0 ? C.DARK_GREEN + "+" : C.DARK_RED) + "" + F.f(j, 2) +
+				// C.GRAY + " -| ");
+				// }
+				// }
+				// for(double j : s.getRates().k())
+				// {
+				// if(s.getRates().get(j) >= 0)
+				// {
+				// i.sendMessage((j > 0 ? C.GREEN + "+" : C.RED) + "" + F.f(j, 2) + C.GRAY + "
+				// -> " + C.WHITE + F.f(s.rates.get(j)));
+				// }
+				// }
+				//
+				// i.sendMessage(C.GOLD + "Stamina: " + C.WHITE + F.f((int) s.current) + C.GRAY
+				// + " / " + C.WHITE + F.f((int) s.getMax()) + " " + (s.rate > 0 ? C.GREEN + "+"
+				// : C.RED) + "" + F.f(s.rate, 2));
+
+				if(s.getCurrent() / s.getMax() < 0.48 && Math.abs(s.rate) < 1)
 				{
 					double b = 0;
 					boolean sat = false;
@@ -59,19 +117,17 @@ public class StaminaController implements IPawn
 						b += STAMINA_FOOD_GEN;
 					}
 
-					if(s.current + ((STAMINA_GEN_BASE + b) * i.getFoodLevel()) * STAMINA_GEN_OVER_TICKS < s.getMax())
+					s.rate(((STAMINA_GEN_BASE + b) * i.getFoodLevel()), STAMINA_GEN_OVER_TICKS);
+
+					if(sat)
 					{
-						s.rate(((STAMINA_GEN_BASE + b) * i.getFoodLevel()), STAMINA_GEN_OVER_TICKS);
+						i.setSaturation((float) (i.getSaturation() - STAMINA_SATURATION_CONSUME));
+					}
 
-						if(sat)
-						{
-							i.setSaturation((float) (i.getSaturation() - STAMINA_SATURATION_CONSUME));
-						}
-
-						if(food)
-						{
-							i.setFoodLevel(i.getFoodLevel() - 1);
-						}
+					if(food)
+					{
+						i.setFoodLevel(i.getFoodLevel() - 1);
+						i.setSaturation(10);
 					}
 				}
 			}
@@ -96,25 +152,11 @@ public class StaminaController implements IPawn
 					s.rate(-STAMINA_DRAIN_SHIELD_ARMED, 4);
 				}
 			}
-
-			if(s.getCurrent() / s.getMax() > 0.75)
-			{
-				i.addPotionEffect(new PotionEffect(PotionEffectType.FAST_DIGGING, 25, 0));
-			}
-
-			if(s.getCurrent() < 100)
+			if(s.getCurrent() < 250)
 			{
 				i.setSprinting(false);
-				i.addPotionEffect(new PotionEffect(PotionEffectType.SLOW_DIGGING, 44, 1, false, false));
-				i.addPotionEffect(new PotionEffect(PotionEffectType.SLOW, 44, 1, false, false));
+				i.addPotionEffect(new PotionEffect(PotionEffectType.SLOW, 55, 0, false, false));
 			}
-
-			else if(s.getCurrent() < 250)
-			{
-				i.addPotionEffect(new PotionEffect(PotionEffectType.SLOW, 44, 0, false, false));
-				i.addPotionEffect(new PotionEffect(PotionEffectType.SLOW_DIGGING, 44, 0, false, false));
-			}
-
 		}
 	}
 
@@ -127,6 +169,21 @@ public class StaminaController implements IPawn
 		if(e.getPlayer().hasPotionEffect(PotionEffectType.FAST_DIGGING))
 		{
 			s.rate(-STAMINA_DRAIN_BREAK_PLACE, STAMINA_DRAIN_BREAK_PLACE_TICKS);
+		}
+	}
+
+	@EventHandler
+	public void onConsume(PlayerItemConsumeEvent e)
+	{
+		if(e.getItem().getType().equals(Material.GOLDEN_APPLE))
+		{
+			ValueControl v = U.getService(HydrationSVC.class).get(e.getPlayer());
+			v.rate(STAMINA_GAIN_GAPPLE, STAMINA_GAIN_GAPPLE_TICKS);
+
+			if(e.getPlayer().getFireTicks() > 0)
+			{
+				e.getPlayer().setFireTicks(0);
+			}
 		}
 	}
 

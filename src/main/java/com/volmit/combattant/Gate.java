@@ -94,8 +94,10 @@ public class Gate
 	/**
 	 * Baubles
 	 */
-	public static double MAX_STAMINA = 6000;
-	public static double MAX_HYDRATION = 10000;
+	public static double MAX_STAMINA = 9000;
+	public static double MIN_STAMINA = 100;
+	public static double MAX_STAMINA_ABSORBTION = 16000;
+	public static double MAX_HYDRATION = 5000;
 	public static int BAR_AVERAGE_RADIUS = 10;
 
 	/**
@@ -122,6 +124,8 @@ public class Gate
 	 * Stamina -> Regeneration
 	 */
 	public static double STAMINA_GAIN_FOOD_TRICKLE = 2.6;
+	public static double STAMINA_GAIN_GAPPLE = 553.7;
+	public static int STAMINA_GAIN_GAPPLE_TICKS = 200;
 	public static int STAMINA_GAIN_FOOD_TRICKLE_TICKS_MULTIPLIER = 130;
 	public static double STAMINA_FOLLOW_FOOD_MULTIPLIER = 1.0;
 	public static double STAMINA_FOLLOW_FOOD_MULTIPLIER_BURST = 2.3;
@@ -129,15 +133,15 @@ public class Gate
 	public static int STAMINA_FOLLOW_FOOD_BURST_TICKS = 30;
 	public static int STAMINA_GEN_OVER_TICKS = 30;
 	public static double STAMINA_REGEN_WATER_MIN_STAMINA_PERCENT = 0.25;
-	public static double STAMINA_REGEN_WATER_AMOUNT = 3.8;
+	public static double STAMINA_REGEN_WATER_AMOUNT = 4.8;
 	public static double STAMINA_REGEN_WATER_DRAIN = 1.4;
 	public static double STAMINA_GEN_RATE_END_BASE = 0.15;
 	public static double STAMINA_GEN_RATE_BASE = 0.21;
-	public static double STAMINA_SATURATION_GEN = 0.62;
-	public static double STAMINA_SATURATION_CONSUME = 0.5;
+	public static double STAMINA_SATURATION_GEN = 10.62;
+	public static double STAMINA_SATURATION_CONSUME = 0.7;
 	public static double STAMINA_FOOD_GEN = 0.94;
-	public static double STAMINA_MIN_FOOD_LEVEL = 8;
-	public static double STAMINA_GEN_BASE = 5.71;
+	public static double STAMINA_MIN_FOOD_LEVEL = 17;
+	public static double STAMINA_GEN_BASE = 1.71;
 	public static double STAMINA_DRAIN_BREAK_PLACE = 10;
 	public static int STAMINA_REGEN_FROM_HYDRATION_TICKS = 5;
 	public static int STAMINA_GEN_TICK_INTERVAL = 3;
@@ -164,7 +168,7 @@ public class Gate
 	public static double HYDRATION_GEN_RATE_BASE = 1;
 	public static double HYDRATION_GEN_RATE_IN_WATER_BUNUS = 1.21;
 	public static double HYDRATION_GEN_RATE_TEMP_DIVISOR = 4;
-	public static double HYDRATE_IN_WATER_AMOUNT = 10;
+	public static double HYDRATE_IN_WATER_AMOUNT = 100;
 	public static double DEHYDRATION_SATURATION_REDUCTION = 0.2;
 
 	/**
@@ -178,9 +182,9 @@ public class Gate
 	 * Sword Stab
 	 */
 	public static double SWORD_STAB_MIN_STAMINA = 1250;
-	public static double SWORD_STAB_SUCCESS_CONSUME_STAMINA = 300;
+	public static double SWORD_STAB_SUCCESS_CONSUME_STAMINA = 50;
 	public static int SWORD_STAB_SUCCESS_CONSUME_STAMINA_TICKS = 4;
-	public static double SWORD_STAB_ATTEMPT_CONSUME_STAMINA = 100;
+	public static double SWORD_STAB_ATTEMPT_CONSUME_STAMINA = 10;
 	public static int SWORD_STAB_ATTEMPT_CONSUME_STAMINA_TICKS = 3;
 	public static int SWORD_STAB_ATTEMPT_COOLDOWN = 27;
 	public static int SWORD_STAB_SUCCESS_COOLDOWN = 8;
@@ -192,10 +196,35 @@ public class Gate
 	public static double SWORD_STAB_DAMAGE_STONE = 3;
 
 	/**
+	 * Axe Smash
+	 */
+	public static double AXE_SMASH_MIN_STAMINA = 1250;
+	public static double AXE_SMASH_SUCCESS_CONSUME_STAMINA = 80;
+	public static int AXE_SMASH_SUCCESS_CONSUME_STAMINA_TICKS = 4;
+	public static double AXE_SMASH_ATTEMPT_CONSUME_STAMINA = 48;
+	public static int AXE_SMASH_ATTEMPT_CONSUME_STAMINA_TICKS = 2;
+	public static int AXE_SMASH_ATTEMPT_COOLDOWN = 16;
+	public static int AXE_SMASH_SUCCESS_COOLDOWN = 8;
+	public static int AXE_SMASH_SUCCESS_DURABILITY = 44;
+	public static double AXE_SMASH_DAMAGE_DIAMOND = 13;
+	public static double AXE_SMASH_DAMAGE_IRON = 9;
+	public static double AXE_SMASH_DAMAGE_GOLD = 8;
+	public static double AXE_SMASH_DAMAGE_WOOD = 6;
+	public static double AXE_SMASH_DAMAGE_STONE = 7;
+
+	/**
 	 * Sword Sweep
 	 */
 	public static double SWORD_SWEEP_COOLDOWN_MULTIPLIER = 1;
 	public static double SWORD_SWEEP_DURABILITY_MULTIPLIER = 0.35;
 	public static double SWORD_SWEEP_MIN_STAMINA = 750;
 	public static int SWORD_SWEEP_BASE_COOLDOWN = 7;
+
+	/**
+	 * Axe Sweep
+	 */
+	public static double AXE_SWEEP_COOLDOWN_MULTIPLIER = 1;
+	public static double AXE_SWEEP_DURABILITY_MULTIPLIER = 0.35;
+	public static double AXE_SWEEP_MIN_STAMINA = 750;
+	public static int AXE_SWEEP_BASE_COOLDOWN = 7;
 }

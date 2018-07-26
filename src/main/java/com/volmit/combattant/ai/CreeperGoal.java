@@ -19,6 +19,8 @@ import com.volmit.volume.math.M;
 
 public class CreeperGoal extends GOAL
 {
+	boolean ta = false;
+
 	@Override
 	public void onHurt(Location from, LivingEntity src, LivingEntity c, double damage)
 	{
@@ -35,28 +37,27 @@ public class CreeperGoal extends GOAL
 			Location a = c.getLocation();
 			Location h = a.clone();
 			h.setY(t.getY());
-
 			double verticalGoal = t.getY() - a.getY();
 			double distanceLateral = h.distance(t);
 
 			if(verticalGoal < -Gate.AI_GOAL_CREEPER_DIVEBOMB_MINIMUM_HEIGHT_SEPERATION && distanceLateral < Gate.AI_GOAL_CREEPER_DIVEBOMB_MAXIMUM_LATERAL_SEPERATION && distanceLateral > Gate.AI_GOAL_CREEPER_DIVEBOMB_MINIMUM_LATERAL_SEPERATION)
 			{
+				ta = true;
 				diveBomb(c, le);
 			}
 
-			else if(Math.abs(verticalGoal) < Gate.AI_GOAL_CREEPER_RUSHBOMB_MINIMUM_HEIGHT_SEPERATION && distanceLateral < Gate.AI_GOAL_CREEPER_RUSHBOMB_MAXIMUM_LATERAL_SEPERATION && distanceLateral > Gate.AI_GOAL_CREEPER_RUSHBOMB_MINIMUM_LATERAL_SEPERATION)
+			else
 			{
-				rushBomb(c, le);
+				ta = false;
+				target(c, null);
 			}
 		}
-	}
 
-	private void rushBomb(LivingEntity c, LivingEntity le)
-	{
-		pathfind(le.getLocation(), c, Gate.AI_GOAL_CREEPER_RUSHBOMB_CHARGE_SPEED);
-		ignite(c, le);
-		((Creeper) c).setMaxFuseTicks(Gate.AI_GOAL_CREEPER_RUSHBOMB_FUSE_TICKS_CONTACT);
-		ParticleEffect.VILLAGER_ANGRY.display(1.2f, 1, c.getEyeLocation(), 32);
+		else
+		{
+			ta = false;
+			target(c, null);
+		}
 	}
 
 	private void diveBomb(LivingEntity c, LivingEntity le)
@@ -82,11 +83,6 @@ public class CreeperGoal extends GOAL
 		lookAt(c, direction);
 		ParticleEffect.VILLAGER_ANGRY.display(1.2f, 1, c.getEyeLocation(), 32);
 		checkDive(c);
-	}
-
-	private void ignite(LivingEntity c, LivingEntity target)
-	{
-		((Creeper) c).setTarget(target);
 	}
 
 	private void ignite(LivingEntity c)
@@ -158,6 +154,9 @@ public class CreeperGoal extends GOAL
 	@Override
 	public void onPityTick(LivingEntity c)
 	{
-
+		if(!ta)
+		{
+			target(c, null);
+		}
 	}
 }

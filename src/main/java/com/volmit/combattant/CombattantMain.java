@@ -6,26 +6,30 @@ import com.volmit.combattant.control.HydrationController;
 import com.volmit.combattant.control.MeleeController;
 import com.volmit.combattant.control.ProjectileController;
 import com.volmit.combattant.control.StaminaController;
+import com.volmit.combattant.control.WeightController;
 import com.volmit.volume.bukkit.pawn.Control;
 import com.volmit.volume.bukkit.pawn.IPawn;
 
 public class CombattantMain implements IPawn
 {
 	@Control
-	private StaminaController staminaController;
+	public StaminaController staminaController;
 
 	@Control
-	private HydrationController hydrationController;
+	public HydrationController hydrationController;
 
 	@Control
-	private BaubleController baubleController;
+	public BaubleController baubleController;
 
 	@Control
-	private ProjectileController arrowKBController;
+	public ProjectileController arrowKBController;
 
 	@Control
-	private AIController aiController;
+	public AIController aiController;
 
 	@Control
-	private MeleeController meleeController;
+	public MeleeController meleeController;
+
+	@Control
+	public WeightController weightController;
 }

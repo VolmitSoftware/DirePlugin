@@ -60,10 +60,13 @@ public class ValueControl
 
 		for(double i : rates.k())
 		{
-			finalRate += i;
+			if(rates.get(i) > 1)
+			{
+				finalRate += i;
+			}
 			rates.put(i, rates.get(i) - 1);
 
-			if(rates.get(i) <= 0)
+			if(rates.get(i) <= -70)
 			{
 				rates.remove(i);
 			}

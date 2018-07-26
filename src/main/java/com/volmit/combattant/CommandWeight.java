@@ -2,23 +2,16 @@ package com.volmit.combattant;
 
 import org.bukkit.inventory.ItemStack;
 
-import com.volmit.volume.bukkit.command.Command;
 import com.volmit.volume.bukkit.command.PawnCommand;
 import com.volmit.volume.bukkit.command.VolumeSender;
 import com.volmit.volume.bukkit.util.text.C;
 import com.volmit.volume.lang.format.F;
 
-public class CommandCombattant extends PawnCommand
+public class CommandWeight extends PawnCommand
 {
-	@Command
-	private CommandReload reload;
-
-	@Command
-	private CommandWeight weight;
-
-	public CommandCombattant()
+	public CommandWeight()
 	{
-		super("combattant", "combat", "comb", "cbt", "cb");
+		super("w", "weight");
 	}
 
 	@Override

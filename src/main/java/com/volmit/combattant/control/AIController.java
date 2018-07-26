@@ -5,6 +5,7 @@ import java.time.Duration;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
+import org.bukkit.entity.Creeper;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
@@ -138,6 +139,11 @@ public class AIController implements IPawn
 				if(i instanceof LivingEntity)
 				{
 					if(!(g instanceof PassiveGoal) && i.getType().equals(pop.getType()))
+					{
+						continue;
+					}
+
+					if(i instanceof Creeper)
 					{
 						continue;
 					}

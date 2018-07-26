@@ -5,6 +5,7 @@ import org.bukkit.entity.LivingEntity;
 
 import com.volmit.combattant.Gate;
 import com.volmit.volume.lang.collections.GList;
+import com.volmit.volume.math.M;
 
 public class AgressiveMeleeGoal extends GOAL
 {
@@ -17,7 +18,7 @@ public class AgressiveMeleeGoal extends GOAL
 	@Override
 	public void onSoundDiscovered(Location near, Location far, GList<Location> sounds, LivingEntity c, GList<LivingEntity> nearbyEntities, GList<LivingEntity> nearbyEntitiesLOS)
 	{
-		if(near != null)
+		if(near != null && M.r(0.25))
 		{
 			lunge(near, c, Gate.AI_GOAL_AGGRO_LUNGE_SPEED);
 		}

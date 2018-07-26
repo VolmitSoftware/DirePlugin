@@ -1,6 +1,11 @@
 package com.volmit.combattant.control;
 
+import org.bukkit.Bukkit;
+import org.bukkit.Material;
 import org.bukkit.Sound;
+import org.bukkit.World;
+import org.bukkit.block.Block;
+import org.bukkit.entity.Arrow;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Projectile;
@@ -13,9 +18,14 @@ import com.volmit.combattant.Gate;
 import com.volmit.combattant.services.SoundSVC;
 import com.volmit.volume.bukkit.U;
 import com.volmit.volume.bukkit.pawn.IPawn;
+import com.volmit.volume.bukkit.pawn.Tick;
 import com.volmit.volume.bukkit.task.S;
 import com.volmit.volume.bukkit.util.particle.ParticleEffect;
+import com.volmit.volume.bukkit.util.sound.GSound;
+import com.volmit.volume.bukkit.util.world.Cuboid;
+import com.volmit.volume.lang.collections.GList;
 import com.volmit.volume.lang.collections.GMap;
+import com.volmit.volume.math.M;
 
 public class ProjectileController implements IPawn
 {
@@ -24,6 +34,66 @@ public class ProjectileController implements IPawn
 	public ProjectileController()
 	{
 		velocities = new GMap<Player, Vector>();
+	}
+
+	@Tick
+	public void onTick()
+	{
+		for(World i : Bukkit.getWorlds())
+		{
+			for(Arrow j : i.getEntitiesByClass(Arrow.class))
+			{
+				Block aa = j.getLocation().clone().add(j.getVelocity()).getBlock();
+				Block bb = j.getLocation().clone().add(j.getVelocity().clone().multiply(0.2)).getBlock();
+				Block cc = j.getLocation().clone().add(j.getVelocity().clone().multiply(0.5)).getBlock();
+				Block dd = j.getLocation().clone().getBlock();
+
+				GList<Block> gb = new GList<Block>();
+				gb.add(aa);
+				gb.add(bb);
+				gb.add(cc);
+				gb.add(dd);
+				gb.removeDuplicates();
+
+				Cuboid cv = new Cuboid(j.getLocation(), j.getLocation().clone().add(j.getVelocity().multiply(2)));
+
+				for(Block k : new GList<Block>(cv.iterator()))
+				{
+					gb.add(k);
+				}
+
+				for(Block k : gb)
+				{
+					if(k.getType().equals(Material.LEAVES) || k.getType().equals(Material.LEAVES_2))
+					{
+						k.breakNaturally();
+						if(M.r(0.25))
+						{
+							new GSound(Sound.BLOCK_GRASS_BREAK, 0.4f, 1.75f).play(k.getLocation());
+						}
+
+						else
+						{
+							new GSound(Sound.BLOCK_GRASS_STEP, 0.9f, 1.75f).play(k.getLocation());
+						}
+					}
+
+					if(k.getType().equals(Material.GLASS) || k.getType().equals(Material.GLOWSTONE) || k.getType().equals(Material.STAINED_GLASS_PANE) || k.getType().equals(Material.STAINED_GLASS) || k.getType().equals(Material.THIN_GLASS))
+					{
+						k.breakNaturally();
+						if(M.r(0.25))
+						{
+							new GSound(Sound.BLOCK_GLASS_BREAK, 0.4f, 1.75f).play(k.getLocation());
+						}
+
+						else
+						{
+							new GSound(Sound.BLOCK_GLASS_BREAK, 0.9f, 1.45f).play(k.getLocation());
+						}
+					}
+				}
+			}
+		}
 	}
 
 	@EventHandler
@@ -78,9 +148,7 @@ public class ProjectileController implements IPawn
 
 				}
 			}
-
 		}
-
 	}
 
 	@EventHandler

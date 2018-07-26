@@ -1,8 +1,5 @@
 package com.volmit.combattant;
 
-import org.bukkit.Bukkit;
-import org.bukkit.entity.Player;
-
 import com.volmit.volume.bukkit.VolumePlugin;
 import com.volmit.volume.bukkit.command.Command;
 import com.volmit.volume.bukkit.command.CommandTag;
@@ -13,19 +10,18 @@ import com.volmit.volume.bukkit.pawn.Stop;
 @CommandTag("&8[&cCombattant&8]&7: ")
 public class Combattant extends VolumePlugin
 {
+	public static Combattant inst;
+
 	@Control
-	private CombattantMain main;
+	public CombattantMain main;
 
 	@Command
-	private CommandCombattant command;
+	public CommandCombattant command;
 
 	@Start
 	public void start()
 	{
-		for(Player i : Bukkit.getOnlinePlayers())
-		{
-			i.sendMessage("Niceeeee!");
-		}
+		inst = this;
 	}
 
 	@Stop

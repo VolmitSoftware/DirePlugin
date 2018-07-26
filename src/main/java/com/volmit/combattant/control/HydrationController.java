@@ -3,11 +3,14 @@ package com.volmit.combattant.control;
 import static com.volmit.combattant.Gate.*;
 
 import org.bukkit.Bukkit;
+import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.Sound;
 import org.bukkit.block.Biome;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.player.PlayerBucketFillEvent;
 import org.bukkit.event.player.PlayerItemConsumeEvent;
 
 import com.volmit.combattant.object.ValueControl;
@@ -17,6 +20,11 @@ import com.volmit.volume.bukkit.U;
 import com.volmit.volume.bukkit.pawn.IPawn;
 import com.volmit.volume.bukkit.pawn.Tick;
 import com.volmit.volume.bukkit.task.TICK;
+import com.volmit.volume.bukkit.util.sound.GSound;
+import com.volmit.volume.bukkit.util.world.Cuboid;
+import com.volmit.volume.bukkit.util.world.Cuboid.CuboidDirection;
+import com.volmit.volume.lang.collections.GList;
+import com.volmit.volume.math.M;
 
 public class HydrationController implements IPawn
 {
@@ -60,6 +68,12 @@ public class HydrationController implements IPawn
 				{
 					w = true;
 					s.rate(HYDRATE_IN_WATER_AMOUNT, HYDRATE_IN_WATER_TICKS);
+
+					if(M.r(0.13) && s.getCurrent() < s.getMax() - 100)
+					{
+						new GSound(Sound.ITEM_BUCKET_FILL, 1f, 0.25f + (float) (Math.random() * 0.5)).play(i.getLocation());
+						consumeWater(i.getLocation());
+					}
 				}
 
 				double ps = a.getCurrent() / a.getMax();
@@ -85,6 +99,34 @@ public class HydrationController implements IPawn
 				else if(i.getWorld().getWeatherDuration() > 20 && i.getWorld().hasStorm())
 				{
 					s.drainRate /= 2;
+				}
+			}
+		}
+	}
+
+	@EventHandler
+	public void on(PlayerBucketFillEvent e)
+	{
+		consumeWater(e.getBlockClicked().getLocation());
+	}
+
+	private void consumeWater(Location l)
+	{
+		Cuboid cc = new Cuboid(l);
+		cc = cc.expand(CuboidDirection.Down, 3);
+		cc = cc.expand(CuboidDirection.North, 3);
+		cc = cc.expand(CuboidDirection.South, 3);
+		cc = cc.expand(CuboidDirection.East, 3);
+		cc = cc.expand(CuboidDirection.West, 3);
+		cc = cc.expand(CuboidDirection.Up, 3);
+
+		for(Block i : new GList<Block>(cc.iterator()))
+		{
+			if((i.getType().equals(Material.STATIONARY_WATER) || i.getType().equals(Material.WATER)) && i.getLocation().distance(l) <= 1.95)
+			{
+				if(M.r(0.76))
+				{
+					i.setType(Material.AIR);
 				}
 			}
 		}

@@ -6,6 +6,7 @@ import org.bukkit.boss.BarStyle;
 import org.bukkit.entity.Player;
 
 import com.volmit.volume.lang.collections.GMap;
+import com.volmit.volume.math.M;
 
 public class BarPlayer
 {
@@ -50,6 +51,8 @@ public class BarPlayer
 
 	public void setBossBar(BarNode node, String title, BarColor c, BarStyle s, double progress)
 	{
+		progress = M.clip(progress, 0.0, 1.0);
+
 		if(bars.containsKey(node))
 		{
 			IBar bar = bars.get(node);
